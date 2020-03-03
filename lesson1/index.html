@@ -132,6 +132,128 @@
 
 
 
+
+<section data-markdown><script type="text/template">
+
+## Stored Programs
+
+* We take it for granted now, but the entire concept of *software* was an important invention
+* A computer should be able to be easily reconfigured for different tasks
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Jacquard Loom
+
+<img width="500px" src="jacquard.jpg">
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## x-ware
+
+* **Hardware**: The physical parts of the machine that cannot be reconfigured
+* **Software**: Stored programs that can be installed, changed, upgraded
+* **Firmware**: Something in the middle (ie a program stored on a special chip in a network card)
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Turing Machine
+
+* A Turing Machine is a theoretical machine designed by Alan Turing
+* It can be programmed to perform any arbitrary computation
+* If you can show how to implement a Turing Machine in a programming language or virtual machine, it is called **turing complete**
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Turing Machine
+
+<img style="background-color: white" src="turing-machine.png">
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Turing Completeness
+
+* No real-world machine has an *infinite* tape, so can never be truely Turing Complete
+  * Informal "turing complete"
+* In practice, informal "turing complete" means:
+  * Can do loops
+  * Backwards branches (same as loops)
+
+</script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Harvard Architecture
+
+<img style="background-color: white; border: 0" width="500px" src="Harvard_architecture.svg">
+
+* Memory used to store the program code is separate from the working memory used by the program
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Von Neumann Architecture
+
+<img style="background-color: white; border: 0" src="Von_Neumann_Architecture.svg">
+
+* There is only one class of memory that stores both program code and working memory
+* General purpose computers today are (mostly) Von Neumann
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## CPU Caches
+
+* Accessing memory is slow so CPUs uses caches
+  * Registers: Small number of super-fast temporary working slots inside the CPU core
+  * Level 1 Cache: Small but very fast memory inside single core
+  * Level 2 Cache: Larger but slower, inside single core
+  * Level 3 Cache: Larger but slower, shared by cores
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Memory Hierarchy
+
+<img style="background-color: white; border: 0" width="500px" src="Cache_Hierarchy_Updated.png">
+
+</script></section>
+
+
+
 <section data-markdown><script type="text/template">
 
 ## Latency Numbers
@@ -167,18 +289,7 @@
 </script></section>
 
 
-<section data-markdown><script type="text/template">
 
-##
-
-</script></section>
-
-
-<section data-markdown><script type="text/template">
-
-##
-
-</script></section>
 
 
 
