@@ -1,0 +1,36 @@
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
+<style>
+body { font-size: 20px; }
+div { margin-top: 20px; }
+</style>
+
+<h1>Exercise: EVM Assembly</h1>
+
+<pre>
+pragma solidity ^0.4.0;
+
+contract Test {
+    function f(int a, int b) public pure returns (int output) {
+        assembly {
+            a b
+
+            // YOUR CODE GOES HERE:
+            add
+
+            =: output
+        }
+    }
+}
+</pre>
+
+
+<div>
+$$f(a,b) = (a + b)^3 * (a - 2)$$
+</div>
+
+<div>
+Test case: Evaluating f(5,6) should return 3993
+</div>
