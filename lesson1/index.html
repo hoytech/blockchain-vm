@@ -433,11 +433,11 @@ Sometimes it can get pretty deep...
 
 <section data-markdown><script type="text/template">
 
-## Addition
+## Stack: Addition
 
 <img width="500px" src="stack.png">
 
-<span style="font-size: 50%">(images from Starting Forth by Leo Brodie)</span>
+<span style="font-size: 50%">(images from <a href="http://www.exemark.com/FORTH/StartingFORTHfromForthWebsitev9_2013_12_24.pdf">Starting Forth</a> by Leo Brodie)</span>
 
 </script></section>
 
@@ -487,6 +487,169 @@ Sometimes it can get pretty deep...
 
 </script></section>
 
+
+
+
+<section data-markdown><script type="text/template">
+
+## 15 minute break
+
+</script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Bitcoin Script
+
+* In Bitcoin, every Unspent Transaction Output (UTXO) is protected by a **script**
+* This is a program for a stack-based virtual machine
+* The spender puts arguments onto the stack, then the transaction script is run
+  * UTXO is spent if the script succeeds and leaves non-zero argument at top of stack
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Pay-To-Pubkey-Hash (P2PKH)
+
+* This is the most common script used for bitcoin payments
+* Exercise: Look at an [example transaction](https://www.blockchain.com/btc/tx/35cf4ca048872072fbad7b1875c95ff394b9d8da670563c029bf97e5084c4ce3)
+
+<pre style="font-size: 40%"><code>OP_DUP OP_HASH160 fdd5d86d8e0bbda93f480c596808caa09b116f8c OP_EQUALVERIFY OP_CHECKSIG</code></pre>
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## P2PKH Example
+
+Code:
+
+<pre style="font-size: 40%"><code>OP_DUP OP_HASH160 fdd5d86d... OP_EQUALVERIFY OP_CHECKSIG
+</code></pre>
+
+Stack:
+
+<pre style="font-size: 40%"><code>[pub-key]
+[sig]
+</code></pre>
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## P2PKH Example
+
+Code:
+
+<pre style="font-size: 40%"><code>OP_DUP OP_HASH160 fdd5d86d... OP_EQUALVERIFY OP_CHECKSIG
+^^^
+</code></pre>
+
+Stack:
+
+<pre style="font-size: 40%"><code>[pub-key]
+[pub-key]
+[sig]
+</code></pre>
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## P2PKH Example  
+
+Code:
+
+<pre style="font-size: 40%"><code>OP_DUP OP_HASH160 fdd5d86d... OP_EQUALVERIFY OP_CHECKSIG
+       ^^^
+</code></pre>
+
+Stack:
+
+<pre style="font-size: 40%"><code>[pub-key hash]
+[pub-key]
+[sig]
+</code></pre>
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## P2PKH Example 
+
+Code:
+
+<pre style="font-size: 40%"><code>OP_DUP OP_HASH160 fdd5d86d... OP_EQUALVERIFY OP_CHECKSIG
+                  ^^^  
+</code></pre>
+
+Stack:
+
+<pre style="font-size: 40%"><code>fdd5d86d...
+[pub-key hash]
+[pub-key]
+[sig]
+</code></pre>
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## P2PKH Example
+
+Code:
+
+<pre style="font-size: 40%"><code>OP_DUP OP_HASH160 fdd5d86d... OP_EQUALVERIFY OP_CHECKSIG
+                              ^^^
+</code></pre>
+
+Stack:
+
+<pre style="font-size: 40%"><code>[pub-key]
+[sig]
+</code></pre>
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## P2PKH Example
+
+Code:
+
+<pre style="font-size: 40%"><code>OP_DUP OP_HASH160 fdd5d86d... OP_EQUALVERIFY OP_CHECKSIG
+                                             ^^^
+</code></pre>
+
+Stack:
+
+<pre style="font-size: 40%"><code>1
+</code></pre>
+
+</script></section>
 
 
 
