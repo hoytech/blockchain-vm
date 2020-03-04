@@ -270,6 +270,21 @@
 </script></section>
 
 
+
+<section data-markdown><script type="text/template">
+
+## Time-scales
+
+* An L1 cache reference takes a bit less than a nanosecond. How long is that?
+* Light can travel about 1 foot (30 cm) in a nanosecond
+
+<img src="ruler.jpg">
+
+</script></section>
+
+
+
+
 <section data-markdown><script type="text/template">
 
 ## Humanized ([source](https://gist.github.com/hellerbarde/2843375))
@@ -286,13 +301,43 @@
 </script></section>
 
 
+
+
+<section data-markdown><script type="text/template">
+
+## CISC/RISC
+
+* CISC: Complex Instruction Set Computer
+  * Complex CPUs with lots of instructions for lots of tasks
+  * x86/amd64 (sort of, not black and white)
+* RISC: Reduced Instruction Set Computer
+  * Fewer instructions, complexity pushed to compilers
+  * ARM (again, sort of)
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Virtual Machines
+
+* Virtual Machines (VMs) are computers that are simulated in software
+* Can run on a variety of different computers
+* Can have more limited/restricted instruction sets than general computers
+
 </script></section>
 
 
 
 <section data-markdown><script type="text/template">
 
-## Register vs Stack Machines
+## JIT
+
+* Sometimes the simulation programs are simple interpreters
+* More sophisticated systems are possible, including Just-In-Time compilers (JITs)
+* JITs convert virtual machine instructions to real machine instructions, and then run them
 
 </script></section>
 
@@ -301,11 +346,130 @@
 
 <section data-markdown><script type="text/template">
 
-    3 4 +
+## 15 minute break
+
+</script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Register Machines
+
+* Registers are like variables inside a CPU
+* Very fast to access, but limited number of them
+* Compilers need to be smart and *allocate* registers
+* When it can't hold everything it needs, it needs to temporarily *spill* some of the registers to memory
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Stack Machines
+
+* Stack machines are alternative to register machines
+* Easier to implement (either real or virtual machines)
+* Easier to write compilers for
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## What is a stack?
+
+<img height="400px" src="stack.jpg">
+
+* Last-In-First-Out (LIFO) data-structure
+
+</script></section>
+
+
+<section data-markdown><script type="text/template">
+
+## Activation Records
+
+    function a() {
+        let temp = 123;
+        b();
+    }
+
+* While `b()` is executing, where is `temp` stored?
+* It is put in a special **activation record** for the `a()` function, and stored on a **call-stack**
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+Sometimes it can get pretty deep...
+
+<img width="500px" src="jtrac-callstack1.png">
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Blockchain VMs
+
+* Both Bitcoin and Ethereum implement stack-based virtual machines
+  * Bitcoin Script/EVM
+* Even if you only use compilers (ie Solidity) it can be useful to understand how the VMs work
+
+</script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Addition
 
 <img width="500px" src="stack.png">
 
-<span style="font-size: 50%">(image from Starting Forth by Leo Brodie)</span>
+<span style="font-size: 50%">(images from Starting Forth by Leo Brodie)</span>
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Adding multiple elements
+
+<img width="500px" src="multielements.png">
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Swap
+
+<img width="500px" src="swap.png">
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Dup
+
+<img width="500px" src="dup.png">
 
 </script></section>
 
@@ -313,11 +477,13 @@
 
 
 
+
+
 <section data-markdown><script type="text/template">
 
-## Lab 1: FIXME
+## Exercise 1: Forth
 
-[fixme.html](fixme.html)
+[forth.html](forth.html)
 
 </script></section>
 
