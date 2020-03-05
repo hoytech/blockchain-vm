@@ -509,7 +509,7 @@ Sometimes it can get pretty deep...
 * In Bitcoin, every Unspent Transaction Output (UTXO) is protected by a **script**
 * This is a program for a stack-based virtual machine
 * The spender puts arguments onto the stack, then the transaction script is run
-  * Transaction is valid spent if the script succeeds and leaves a non-zero argument on top of stack
+  * Transaction is valid if the script succeeds and leaves a non-zero argument on top of stack
 
 </script></section>
 
@@ -673,8 +673,8 @@ Stack:
 
 * `DUP1`, `DUP2`, ... `DUP16` opcodes which copy stack item N
   * This is why you can't have more than 16 local variables in solidity
-* `SWAP1`, `SWAP2`, ... `SWAP16`: swap top with stack item N-1
-* Subtraction is "backwards":
+* `SWAP1`, `SWAP2`, ... `SWAP16`: swap top with stack item N+1
+* Operation order is "backwards":
   * "`a b sub`" &rarr; `b-a`
 
 </script></section>
