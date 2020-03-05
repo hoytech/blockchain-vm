@@ -116,7 +116,7 @@
 
 *Doug Hoyte, March 2020*
 
-[https://is.gd/blockchainvm](https://is.gd/blockchainvm) FIXME
+[https://is.gd/blockchainvm](https://is.gd/blockchainvm)
 
 </script></section>
 
@@ -127,6 +127,8 @@
 ## Lesson Topics
 
 * Machines
+* Stacks
+* Blockchain VMs
 
 </script></section>
 
@@ -660,7 +662,20 @@ Stack:
 * The Ethereum Virtual Machine (EVM) is an evolution of Bitcoin Scripts
 * Many more instructions
 * Unlike bitcoin, it is turing complete (informal)
-* FIXME list of instructions
+* See [list of EVM opcodes](https://ethereum.stackexchange.com/questions/119/what-opcodes-are-available-for-the-ethereum-evm)
+
+</script></section>
+
+
+<section data-markdown><script type="text/template">
+
+## EVM Notes
+
+* `DUP1`, `DUP2`, ... `DUP16` opcodes which copy stack item N
+  * This is why you can't have more than 16 local variables in solidity
+* `SWAP1`, `SWAP2`, ... `SWAP16`: swap top with stack item N-1
+* Subtraction is "backwards":
+  * "`a b sub`" &rarr; `b-a`
 
 </script></section>
 
