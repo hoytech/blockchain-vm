@@ -363,7 +363,7 @@
 * Registers are like variables inside a CPU
 * Very fast to access, but limited number of them
 * Compilers need to be smart and *allocate* registers
-* When it can't hold everything it needs, it needs to temporarily *spill* some of the registers to memory
+* When it can't hold everything it needs, compiler needs to temporarily *spill* some of the registers to memory
 
 </script></section>
 
@@ -373,8 +373,8 @@
 
 ## Stack Machines
 
-* Stack machines are alternative to register machines
-* Easier to implement (either real or virtual machines)
+* Alternative to register machines
+* Easier to implement (for both real and virtual machines)
 * Easier to write compilers for
 
 </script></section>
@@ -509,7 +509,7 @@ Sometimes it can get pretty deep...
 * In Bitcoin, every Unspent Transaction Output (UTXO) is protected by a **script**
 * This is a program for a stack-based virtual machine
 * The spender puts arguments onto the stack, then the transaction script is run
-  * UTXO is spent if the script succeeds and leaves non-zero argument at top of stack
+  * Transaction is valid spent if the script succeeds and leaves a non-zero argument on top of stack
 
 </script></section>
 
