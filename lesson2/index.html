@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Virtual Machines</title>
+
+    <meta name="author" content="Doug Hoyte">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/css/theme/black.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal.js/css/print/pdf.css' : '../reveal.js/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal .slides h1, .reveal .slides h2, .reveal .slides h3 {
+        text-transform: none;
+      }
+
+      .two-column {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .two-column em {
+        margin: 20px;
+      }
+
+      .reveal .big-and-bold {
+        font-weight: bold;
+        font-size: 135%;
+      }
+
+      .reveal .shrunk-a-bit {
+        font-size: 90%;
+      }
+
+      .reveal .shrunk-a-bit pre {
+        width: 100%;
+      }
+
+      .reveal pre {
+        width: 100%;
+      }
+
+      .reveal .highlight {
+        color: yellow;
+        font-weight: bold;
+      }
+
+      .reveal .highlightRed {
+        color: red;
+        font-weight: bold;
+      }
+
+      .reveal .highlightGreen {
+        color: green;
+        font-weight: bold;
+      }
+
+      .left {
+        left:-8.33%;
+        text-align: left;
+        float: left;
+        width:50%;
+        z-index:-10;
+      }
+
+      .right {
+        left:31.25%;
+        top: 75px;
+        text-align: left;
+        float: right;
+        z-index:-10;
+        width:50%;
+      }
+
+      table {
+        font-size: 80%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+<!------------------------------------------------------->
+
+
+
+<section data-markdown><script type="text/template">
+
+## Virtual Machines
+
+### Lesson 2: Gas Optimization
+
+*Doug Hoyte, March 2020*
+
+[https://is.gd/blockchainvm](https://is.gd/blockchainvm)
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Lesson Topics
+
+* Efficiency
+
+</script></section>
+
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Trade-offs
+
+* To improve performance in one area we almost always need to sacrifice another
+  * You can make it run faster, but it will use more memory
+  * You can save some memory but it will run slower
+  * You don't need to hire an expensive designer, but it will look ugly
+* "No free lunch"
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Performance
+
+* "Performance" has many meanings:
+  * Lower latency
+  * Higher bandwidth
+  * Cheaper
+  * Less power
+  * Less bandwidth
+  * Higher profit margins
+  * Nicer looking
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Performance trade-offs
+
+* Sometimes performance does not matter
+  * Who cares if a nightly reporting job takes 10 minutes instead of 10 seconds?
+* Whenever you discuss "performance" you need to specify how you are measuring performance
+  * Often some performance dimensions don't matter
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Efficiency
+
+* Efficiency is about using resources intelligently
+* It is special performance metric because
+  * Efficiency **always** matters
+* Using resources efficiently is a moral imperative
+  * Resources are scarce
+  * Climate change
+
+</script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Blockchain Resources
+
+* **Bandwidth**: Transactions and blocks need to be sent across the network between every full node
+* **CPU**: Every transaction needs to be validated by every full node
+* **Storage**: At least the current blockchain state needs to be stored by every full node
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Bitcoin fees
+
+* In Bitcoin, you choose how much to pay to the miner who includes your transaction as a *fee*
+* The fee is the difference between the sum of your input UTXOs and the sum of your outputs
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Sats/Byte
+
+* Since bitcoin block size is the limiting factor on creating a block, most miners order transactions by fee divided by transaction size
+* Satoshis per byte
+  * Satoshi is a 100 millionth of a Bitcoin (smallest possible unit)
+  * Higher sats/byte you pay, faster your transaction is mined
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Bitcoin Fee Market
+
+<img src="btcfeemarket.png">
+
+</script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## TX Mining Externality
+
+* The miner who solves the block gets the entire fee payment
+* But the additional bandwith, processing, and storage is paid by everyone who runs a full node
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Time-value of money
+
+* A fee is a one-time payment, but the transaction can require storage on the blockchain forever
+* Shouldn't the fee be infinitely large?
+  * Time-value of money: Money now is worth more than money later
+  * In an efficient market, the interest earned on the fee is equal to the cost of storage
+  * So, a transaction fee is thus the present-value of a perpetual annuity
+  * See also: discounted cash flow
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Stateless clients
+
+* Research is being done for new blockchain protocols where validators and miners don't need to store the entire blockchain state
+* Nodes ("clients") don't need large amounts of storage ("stateless")
+* Transactions need to include witness data
+
+</script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Turing incomplete
+
+* In Bitcoin, the size of a transaction in bytes is a good enough estimate of how many resources it will consume
+  * Bitcoin script is turing incomplete:
+  * No loops are possible, so can always be executed in time proportional to the length
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Turing complete
+
+* Ethereum EVM is "turing complete" (informal):
+  * Supports loops, and arbitrarily complex logic
+  * A transaction could loop forever
+  * It could consume a very large amount of resources relative to its size
+    * Consider writing to storage inside a loop
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Gas
+
+* Ethereum solves this by recording the resources consumed during each operation
+  * Resources are recorded in units of "gas" (gasoline/petrol used in cars)
+* If resource usage exceeds a limit, the transaction is aborted
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Optimizer Runs
+
+<img src="optimize.png" />
+
+* There are two dimensions to optimize for:
+  * Cost to deploy
+  * Cost to use
+* Runs parameter allows you to choose
+  * `1` = optimize for cheap deployment
+  * `200+` = optimize for often used contract
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## 15 minute break
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Lab 2: FIXME
+
+[evm.html](evm.html)
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## End of lesson
+
+</script></section>
+
+
+
+<!------------------------------------------------------->
+
+
+      </div>
+
+    </div>
+
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'none', // none/fade/slide/convex/concave/zoom
+
+	math: {
+          mathjax: '../lib/MathJax/MathJax.js',
+          config: 'TeX-AMS_SVG-full',
+	},
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '../reveal.js/plugin/math/math.js', async: true },
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
