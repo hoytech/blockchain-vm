@@ -668,7 +668,7 @@ Good:
 
     if (rareCondition() && expensiveCondition()) { ... }
 
-* If `rareCondition()` is true, then `expensiveCondition()` is short-circuited out
+* If `rareCondition()` is false, then `expensiveCondition()` is short-circuited out
 
 </script></section>
 
@@ -752,7 +752,7 @@ This function:
 
 Has the modifier "pasted" into it (inlined):
 
-    function f() public onlyOwner {
+    function f() public {
         require(msg.sender == owner);
         doStuff();
     }
