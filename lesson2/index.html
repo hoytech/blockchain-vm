@@ -455,20 +455,6 @@ Gives this estimate:
 
 
 
-<section data-markdown><script type="text/template">
-
-## Net metering for SSTORE
-
-* After the Istanbul fork, writing multiple times to the same storage is cheaper
-
-      IERC20Token(token).transfer(guy1, amount);
-      IERC20Token(token).transfer(guy2, amount);
-
-* Before Istanbul you would pay 5,000 gas (at least) for each update to your balance in the token contract
-* But now you only pay for one update
-  * Take advantage of this
-
-</script></section>
 
 
 <section data-markdown><script type="text/template">
@@ -608,6 +594,25 @@ Sometimes the compiler can merge storage writes into a single `SSTORE` if you **
       }
 
 * 64 bits is plenty for timestamps and counters
+
+</script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Net metering for SSTORE
+
+* After the Istanbul fork, writing multiple times to the same storage is cheaper
+
+      IERC20Token(token).transfer(guy1, amount);
+      IERC20Token(token).transfer(guy2, amount);
+
+* Before Istanbul you would pay 5,000 gas (at least) for each update to your balance in the token contract
+* But now you only pay for one update
+  * Take advantage of this
 
 </script></section>
 
