@@ -325,6 +325,16 @@
 
 
 
+
+<section data-markdown><script type="text/template">
+
+## 15 minute break
+
+</script></section>
+
+
+
+
 <section data-markdown><script type="text/template">
 
 ## Optimizer Runs
@@ -471,6 +481,55 @@ Compiles to:
 
 
 
+<section data-markdown><script type="text/template">
+
+## Read the assembly
+
+Consider this loop:
+
+    uint256 i = 10;
+    while (i > 0) {
+        i--;
+    }
+
+Old compilers compiled this literally:
+
+      PUSH 0
+      DUP2
+      GT
+      ISZERO
+      PUSH [tag] 8
+      JUMPI
+
+</script></section>
+
+
+<section data-markdown><script type="text/template">
+
+## Read the assembly, 2
+
+But there are no negative *unsigned* ints, so this was better:
+
+    uint256 i = 10;
+    while (i != 0) {
+        i--;
+    }
+
+Results in:
+
+      DUP1
+      ISZERO
+      PUSH [tag] 8
+      JUMPI
+
+* Latest solidity compiler does this for you now
+
+</script></section>
+
+
+
+
+
 
 <section data-markdown><script type="text/template">
 
@@ -497,6 +556,235 @@ The following checks the same thing twice:
   * But is it worth it?
 
 </script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Avoid writing to storage
+
+      struct Record {
+          uint64 timestamp; // slot
+          uint256 userId;   // slot
+          uint64 nonce;     // slot
+      }
+
+Sometimes the compiler can merge storage writes into a single `SSTORE` if you **pack** your structs:
+
+      struct Record {
+          uint256 userId;    // slot
+          uint64 timestamp;  // <--| merged into single
+          uint64 nonce;      //    | storage slot
+      }
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Short circuiting Or
+
+Bad:
+
+    if (expensiveCondition() || commonCondition()) { ... }
+
+Good:
+
+    if (commonCondition() || expensiveCondition()) { ... }
+
+* If `commonCondition()` is true, then `rareCondition()` isn't evaluated
+  * It's "short-circuited"
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Short circuiting Or example
+
+Bad:
+
+    if (hasAdminPrivileges(msg.sender) || !contractLocked) { ... }
+
+Good:
+
+    if (!contractLocked || hasAdminPrivileges(msg.sender)) { ... }
+
+* Most of the time the contract will not be locked, so you won't have to call `hasAdminPrivileges()`
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Short circuiting And
+
+Bad:
+
+    if (expensiveCondition() && rareCondition()) { ... }
+
+Good:
+
+    if (rareCondition() && expensiveCondition()) { ... }
+
+* If `rareCondition()` is true, then `expensiveCondition()` is short-circuited out
+
+</script></section>
+
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## 15 minute break
+
+</script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Constant folding
+
+Consider this code:
+
+    uint256 output = 100 * (5 * 5); // 2500 = 0x9C4
+
+It compiles into the following:
+
+    PUSH 9C4
+
+* Where did all the multiplying go?
+* Done at compile-time instead of run-time
+* Only possible when all values are constants
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Dead-code elimination
+
+    if (1 != 1) {
+        doStuff();
+    }
+
+* `1 != 1` is constant folded to `false`
+* `if (false)` statements can just be deleted
+  * They are "dead-code"
+* Programmers don't usually write dumb code like this, but this optimization can be useful elsewhere
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Inlining
+
+Modifiers are *inlined* into the functions they are applied to.
+
+Consider this modifier
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Inlining, 2
+
+This function:
+
+    function f() public onlyOwner {
+        doStuff();
+    }
+
+Has the modifier "pasted into" it (inlined):
+
+    function f() public onlyOwner {
+        require(msg.sender == owner);
+        doStuff();
+    }
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Inlining pros/cons
+
+* Pros:
+  * Avoids function call overhead
+  * Constant propagation (see next slide)
+* Cons:
+  * Increases contract size since every modifier is copy-pasted everywhere it is used
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Constant propagation
+
+* Function call overhead is quite small. If this was only reason for inling, probably wouldn't be worth it
+* In this modifier, there is no way to do constant folding, since `priority` is a variable (not a constant)
+
+      modifier logged(uint priority, string message) {
+          if (priority < 3) emit LogMsg(message);
+          _;
+      }
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Constant propagation, 2
+
+    function myOp() public logged(4, "did myOp") {
+        stuff();
+    }
+
+Inlines to:
+
+    function myOp() public {
+        if (4 < 3) emit LogMsg(message);
+        stuff();
+    }
+
+After constant folding and dead-code elimination:
+
+    function myOp() public {
+        stuff();
+    }
+
+* This is the *true* benefit of inlining
+
+</script></section>
+
+
+
+
 
 
 <section data-markdown><script type="text/template">
@@ -533,51 +821,14 @@ The following checks the same thing twice:
 </script></section>
 
 
-
-
-
 <section data-markdown><script type="text/template">
 
-## Read assembly
+## Strategy: Use a gas profiler
 
-Consider this loop:
+<img width="80%" src="profiler.png">
 
-    uint256 i = 10;
-    while (i > 0) {
-        i--;
-    }
-
-Old compilers compiled this literally:
-
-      PUSH 0
-      DUP2
-      GT
-      ISZERO
-      PUSH [tag] 8
-      JUMPI
-
-</script></section>
-
-
-<section data-markdown><script type="text/template">
-
-## Read assembly, 2
-
-But there are no negative *unsigned* ints, so this was better:
-
-    uint256 i = 10;
-    while (i != 0) {
-        i--;
-    }
-
-Results in:
-
-      DUP1
-      ISZERO
-      PUSH [tag] 8
-      JUMPI
-
-* Latest solidity compiler does this for you now
+* Special environment that runs functions in your contract and measures gas usage
+* See which parts of your code use most gas
 
 </script></section>
 
@@ -585,29 +836,9 @@ Results in:
 
 <section data-markdown><script type="text/template">
 
-## Short circuiting
+## Lab 2: Optimize Contract
 
-</script></section>
-
-
-<section data-markdown><script type="text/template">
-
-## 15 minute break
-
-</script></section>
-
-
-
-
-
-
-
-
-<section data-markdown><script type="text/template">
-
-## Lab 2: FIXME
-
-[evm.html](evm.html)
+[opt.html](opt.html)
 
 </script></section>
 
