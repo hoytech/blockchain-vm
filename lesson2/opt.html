@@ -1,0 +1,69 @@
+<style>
+body { font-size: 20px; }
+div { margin-top: 20px; }
+</style>
+
+<h1>Lab 2: Optimize Contract</h1>
+
+<div>
+Modify the solidity program below to minimize the gas costs.
+</div>
+
+<ul>
+  <li>Use the techniques described during the lesson.</li>
+  <li>Check that gas usage is going down by using the Compilation Details in remix, and by testing transactions.
+  <li>Your submission should be the solidity program.</li>
+</ul>
+
+<hr>
+
+<pre>
+pragma solidity ^0.6.0;
+
+struct Account {
+    uint256 counter;
+    uint256 timestamp;
+    uint256 balance;
+}
+
+contract MyContract {
+    mapping(address =&gt; Account) accounts;
+    bool contractLocked = false;
+    address owner = msg.sender;
+    
+    modifier notLocked() {
+        require(msg.sender == owner || !contractLocked, "contract locked");
+        _;
+    }
+    
+    function addAccount() notLocked() public {
+        accounts[msg.sender].counter = 0;
+        accounts[msg.sender].timestamp = now;
+        accounts[msg.sender].balance = 0;
+    }
+    
+    function creditBalance(uint256 amount, address who) public {
+        require(msg.sender == owner, "not owner");
+        accounts[who].balance += amount;
+    }
+    
+    function transferBalance(uint256 amount, address who) public {
+        require(accounts[msg.sender].balance &gt;= amount, "insufficient balance");
+        
+        accounts[msg.sender].balance = safeSub(accounts[msg.sender].balance, amount);
+        accounts[who].balance = safeAdd(accounts[who].balance, amount);
+    }
+    
+    function safeSub(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b &lt;= a);
+        return a - b;
+    }
+ 
+    function safeAdd(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c &gt;= a);
+        return c;
+    }
+    
+}
+</pre>

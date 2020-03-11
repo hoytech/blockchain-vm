@@ -126,7 +126,9 @@
 
 ## Lesson Topics
 
-* Efficiency
+* Performance and efficiency
+* Gas metering
+* Optimization strategies
 
 </script></section>
 
@@ -313,24 +315,28 @@
 
 
 
-<section data-markdown><script type="text/template">
-
-## Gas
-
-* Ethereum solves this by recording the resources consumed during each operation
-  * Resources are recorded in units of "gas" (gasoline/petrol used in cars)
-* If resource usage exceeds a limit, the transaction is aborted
-
-</script></section>
-
-
-
 
 <section data-markdown><script type="text/template">
 
 ## 15 minute break
 
 </script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Gas
+
+* Ethereum allows contracts to be "turing complete" by recording the resources consumed during each operation
+  * Resources are recorded in units of "gas" (gasoline/petrol used in cars)
+* If resource usage exceeds a limit, the transaction is aborted
+
+</script></section>
+
+
 
 
 
@@ -875,10 +881,10 @@ After constant folding and dead-code elimination:
 
         transition: 'none', // none/fade/slide/convex/concave/zoom
 
-	math: {
+        math: {
           mathjax: '../lib/MathJax/MathJax.js',
           config: 'TeX-AMS_SVG-full',
-	},
+        },
 
         // Optional reveal.js plugins
         dependencies: [
