@@ -343,6 +343,252 @@
 
 
 
+<section data-markdown><script type="text/template">
+
+## Initialization
+
+Instead of this:
+
+    contract MyContract {
+        uint256 myVar = 0;
+    }
+
+Do this:
+
+    contract MyContract {
+        uint256 myVar;
+    }
+
+* Storage variables are initialized to `0` anyway
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Gas estimates
+
+* The solidity compiler can compute estimates about how much gas a contract will take to deploy
+* And can estimate how much to call a function
+  * These are estimates because they can depend on chain state at time of deploy
+  * Also can depend on things like number of 0 bytes in parameters
+
+</script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Construction cost, uninitialized
+
+    contract MyContract {
+        uint256 myVar;
+    }
+
+Gives this estimate:
+
+    "Creation": {
+        "codeDepositCost": "12600",
+        "executionCost": "66",
+        "totalCost": "12666"
+    }
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Construction cost, initialized
+
+    contract MyContract {
+        uint256 myVar = 0;
+    }
+
+Gives this estimate:
+
+    "Creation": {
+        "codeDepositCost": "12600",
+        "executionCost": "5072",
+        "totalCost": "17672"
+    }
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Why so expensive?
+
+* Because the constructor code of the contract explicitly writes `0` to storage
+* It uses an `SSTORE` opcode to do this, which costs 5,000 gas
+  * It would cost 20,000 gas if you set it to non-zero value
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Constructor Assembly
+
+    contract MyContract {
+        uint256 myVar = 0xABCD;
+        uint256 myVar2 = 0xFEED;
+    }
+
+Compiles to:
+
+    PUSH ABCD
+    PUSH 0        <-- slot 0 in storage
+    SSTORE
+    PUSH FEED
+    PUSH 1        <-- slot 1 in storage
+    SSTORE
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Exercise 1
+
+* Create a simple contract in [Remix](https://remix.ethereum.org/) that initializes a variable:
+      contract MyContract {
+          uint256 myVar = 0xABCD;
+      }
+* Compile it, and click on **Compilation Details** in the Compile tab
+  * Find the construction gas estimate
+  * Find the assembly for the constructor
+
+</script></section>
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## external vs. public
+
+* Use `external` when possible
+  * Since `external` functions can only be called from the outside, we can assume arguments are in calldata
+  * `public` functions must support both, so it has to copy arguments to memory
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Avoid repetitive checks
+
+The following checks the same thing twice:
+
+    require(balance >= amount);
+    balance = balance.sub(amount);
+
+* You can save a bit of gas by removing the `require`
+  * But is it worth it?
+
+</script></section>
+
+
+<section data-markdown><script type="text/template">
+
+## Strategy: Keep it simple
+
+* The easiest way to optimize a program, smart contract or otherwise, is to keep it simple
+* To a first approximation, simple means efficient
+  * There are exceptions, and cases where you will want to micro-optimize, or use complex algorithms, but start simple
+
+</script></section>
+
+
+<section data-markdown><script type="text/template">
+
+## Strategy: Off-chain
+
+* Do as much work off-chain if possible
+* Rather than uploading and storing long strings to the blockchain, hash them off-chain and upload the hashes
+* Use hybrid on-chain/off-chain systems
+  * Take advantage of `ecrecover`
+
+</script></section>
+
+
+<section data-markdown><script type="text/template">
+
+## Strategy: Deal with it
+
+* Even after careful optimization, during a gas price war it may still be expensive to use your contract
+* To cope, make sure each interaction provides as much value as possible
+* If you provide enough value to your users, they will be able to justify the gas fees and they will pay
+
+</script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## Read assembly
+
+Consider this loop:
+
+    uint256 i = 10;
+    while (i > 0) {
+        i--;
+    }
+
+Old compilers compiled this literally:
+
+      PUSH 0
+      DUP2
+      GT
+      ISZERO
+      PUSH [tag] 8
+      JUMPI
+
+</script></section>
+
+
+<section data-markdown><script type="text/template">
+
+## Read assembly, 2
+
+But there are no negative *unsigned* ints, so this was better:
+
+    uint256 i = 10;
+    while (i != 0) {
+        i--;
+    }
+
+Results in:
+
+      DUP1
+      ISZERO
+      PUSH [tag] 8
+      JUMPI
+
+* Latest solidity compiler does this for you now
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Short circuiting
+
+</script></section>
+
 
 <section data-markdown><script type="text/template">
 
@@ -353,9 +599,6 @@
 
 
 
-<section data-markdown><script type="text/template">
-
-</script></section>
 
 
 
