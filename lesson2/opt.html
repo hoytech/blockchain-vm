@@ -11,8 +11,11 @@ Modify the solidity program below to minimize the gas costs.
 
 <ul>
   <li>Use the techniques described during the lesson.</li>
-  <li>Check that gas usage is going down by using the Compilation Details in remix, and by testing transactions.
-  <li>Your submission should be the solidity program.</li>
+  <li>Don't forget to enable optimization in compiler settings.</li>
+  <li>Check that gas usage is going down by using the Compilation Details in remix, and by testing transactions.</li>
+  <li>Not all optimizations will show up in the gas estimates, since they are worst-case figures.</li>
+  <li>You should be able to get the creation totalCost below 180,000 and the transferBalance below 65,600.</li>
+  <li>Your submission should be the modified solidity program.</li>
 </ul>
 
 <hr>
@@ -22,36 +25,43 @@ pragma solidity ^0.6.0;
 
 struct Account {
     uint256 counter;
-    uint256 timestamp;
     uint256 balance;
+    uint256 timestamp;
 }
 
 contract MyContract {
     mapping(address =&gt; Account) accounts;
-    bool contractLocked = false;
     address owner = msg.sender;
+    uint256 numCredits = 0;
+    bool contractLocked = false;
     
     modifier notLocked() {
         require(msg.sender == owner || !contractLocked, "contract locked");
         _;
     }
     
-    function addAccount() notLocked() public {
-        accounts[msg.sender].counter = 0;
-        accounts[msg.sender].timestamp = now;
-        accounts[msg.sender].balance = 0;
+    modifier onlyOwner() {
+        require(msg.sender == owner, "not owner");
+        _;
     }
     
-    function creditBalance(uint256 amount, address who) public {
-        require(msg.sender == owner, "not owner");
+    function setLocked(bool newLocked) public onlyOwner {
+        contractLocked = newLocked;
+    }
+    
+    function creditBalance(uint256 amount, address who) public onlyOwner {
+        numCredits++;
         accounts[who].balance += amount;
     }
     
-    function transferBalance(uint256 amount, address who) public {
+    function transferBalance(uint256 amount, address who) public notLocked {
         require(accounts[msg.sender].balance &gt;= amount, "insufficient balance");
         
         accounts[msg.sender].balance = safeSub(accounts[msg.sender].balance, amount);
         accounts[who].balance = safeAdd(accounts[who].balance, amount);
+        
+        accounts[msg.sender].counter++;
+        accounts[msg.sender].timestamp = now;
     }
     
     function safeSub(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -64,6 +74,5 @@ contract MyContract {
         require(c &gt;= a);
         return c;
     }
-    
 }
 </pre>

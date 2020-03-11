@@ -142,10 +142,10 @@
 ## Trade-offs
 
 * To improve performance in one area we almost always need to sacrifice another
-  * You can make it run faster, but it will use more memory
-  * You can save some memory but it will run slower
-  * You don't need to hire an expensive designer, but it will look ugly
-* "No free lunch"
+  * Make it run faster, but it will use more memory
+  * Save some memory, but it will run slower
+  * No hiring an expensive designer, but it will look ugly
+* "No such thing as a free lunch"
 
 </script></section>
 
@@ -155,14 +155,14 @@
 
 ## Performance
 
-* "Performance" has many meanings:
+* Performance can have many meanings:
   * Lower latency
   * Higher bandwidth
   * Cheaper
   * Less power
   * Less bandwidth
-  * Higher profit margins
   * Nicer looking
+  * Higher profit margins
 
 </script></section>
 
@@ -175,7 +175,7 @@
 * Sometimes performance does not matter
   * Who cares if a nightly reporting job takes 10 minutes instead of 10 seconds?
 * Whenever you discuss "performance" you need to specify how you are measuring performance
-  * Often some performance dimensions don't matter
+  * Often many performance dimensions don't matter
 
 </script></section>
 
@@ -190,7 +190,7 @@
 * It is special performance metric because
   * Efficiency **always** matters
 * Using resources efficiently is a moral imperative
-  * Resources are scarce
+  * Resources are scarce, and can be used elsewhere for productive work
   * Climate change
 
 </script></section>
@@ -227,7 +227,7 @@
 
 ## Sats/Byte
 
-* Since bitcoin block size is the limiting factor on creating a block, most miners order transactions by fee divided by transaction size
+* Since bitcoin block size is the limiting factor when creating a block, most miners order transactions by fee divided by transaction size
 * Satoshis per byte
   * Satoshi is a 100 millionth of a Bitcoin (smallest possible unit)
   * Higher sats/byte you pay, faster your transaction is mined
@@ -248,14 +248,6 @@
 
 
 
-<section data-markdown><script type="text/template">
-
-## TX Mining Externality
-
-* The miner who solves the block gets the entire fee payment
-* But the additional bandwith, processing, and storage is paid by everyone who runs a full node
-
-</script></section>
 
 
 
@@ -271,6 +263,20 @@
   * See also: discounted cash flow
 
 </script></section>
+
+
+
+
+
+<section data-markdown><script type="text/template">
+
+## TX Mining Externality
+
+* The miner who solves the block gets the entire fee payment
+* But the additional bandwith, processing, and storage is paid by everyone who runs a full node
+
+</script></section>
+
 
 
 
@@ -387,6 +393,7 @@ Do this:
 
 * The solidity compiler can compute estimates about how much gas a contract will take to deploy
 * And can estimate how much to call a function
+  * **Worst case** estimates. For things like loops it will report *infinite*
   * These are estimates because they can depend on chain state at time of deploy
   * Also can depend on things like number of 0 bytes in parameters
 
@@ -446,6 +453,22 @@ Gives this estimate:
 
 </script></section>
 
+
+
+<section data-markdown><script type="text/template">
+
+## Net metering for SSTORE
+
+* After the Istanbul fork, writing multiple times to the same storage is cheaper
+
+      IERC20Token(token).transfer(guy1, amount);
+      IERC20Token(token).transfer(guy2, amount);
+
+* Before Istanbul you would pay 5,000 gas (at least) for each update to your balance in the token contract
+* But now you only pay for one update
+  * Take advantage of this
+
+</script></section>
 
 
 <section data-markdown><script type="text/template">
@@ -553,13 +576,13 @@ Results in:
 
 ## Avoid repetitive checks
 
-The following checks the same thing twice:
+The following redundantly double-checks the balance is sufficient:
 
     require(balance >= amount);
     balance = balance.sub(amount);
 
 * You can save a bit of gas by removing the `require`
-  * But is it worth it?
+  * Discuss: Is this optimization worth it?
 
 </script></section>
 
@@ -568,7 +591,7 @@ The following checks the same thing twice:
 
 <section data-markdown><script type="text/template">
 
-## Avoid writing to storage
+## Minimize storage writes
 
       struct Record {
           uint64 timestamp; // slot
@@ -583,6 +606,8 @@ Sometimes the compiler can merge storage writes into a single `SSTORE` if you **
           uint64 timestamp;  // <--| merged into single
           uint64 nonce;      //    | storage slot
       }
+
+* 64 bits is plenty for timestamps and counters
 
 </script></section>
 
@@ -619,7 +644,7 @@ Good:
 
     if (!contractLocked || hasAdminPrivileges(msg.sender)) { ... }
 
-* Most of the time the contract will not be locked, so you won't have to call `hasAdminPrivileges()`
+* Most of the time the contract will not be locked, so you won't call `hasAdminPrivileges()`
 
 </script></section>
 
@@ -663,7 +688,7 @@ Good:
 
 Consider this code:
 
-    uint256 output = 100 * (5 * 5); // 2500 = 0x9C4
+    uint256 output = 100 * 5 * 5; // 2500 = 0x9C4
 
 It compiles into the following:
 
@@ -681,11 +706,11 @@ It compiles into the following:
 
 ## Dead-code elimination
 
-    if (1 != 1) {
+    if (1 == 2) {
         doStuff();
     }
 
-* `1 != 1` is constant folded to `false`
+* `1 == 2` is constant folded to `false`
 * `if (false)` statements can just be deleted
   * They are "dead-code"
 * Programmers don't usually write dumb code like this, but this optimization can be useful elsewhere
@@ -698,14 +723,13 @@ It compiles into the following:
 
 ## Inlining
 
-Modifiers are *inlined* into the functions they are applied to.
+* Modifiers are *inlined* into the functions they are applied to.
+* Consider this modifier
 
-Consider this modifier
-
-    modifier onlyOwner {
-        require(msg.sender == owner);
-        _;
-    }
+      modifier onlyOwner {
+          require(msg.sender == owner);
+          _;
+      }
 
 </script></section>
 
@@ -721,7 +745,7 @@ This function:
         doStuff();
     }
 
-Has the modifier "pasted into" it (inlined):
+Has the modifier "pasted" into it (inlined):
 
     function f() public onlyOwner {
         require(msg.sender == owner);
@@ -784,7 +808,7 @@ After constant folding and dead-code elimination:
         stuff();
     }
 
-* This is the *true* benefit of inlining
+* This is the true benefit of inlining
 
 </script></section>
 
@@ -808,23 +832,15 @@ After constant folding and dead-code elimination:
 
 ## Strategy: Off-chain
 
-* Do as much work off-chain if possible
+* Do as much work off-chain as possible
 * Rather than uploading and storing long strings to the blockchain, hash them off-chain and upload the hashes
+* Use merkle trees (future lesson)
 * Use hybrid on-chain/off-chain systems
   * Take advantage of `ecrecover`
 
 </script></section>
 
 
-<section data-markdown><script type="text/template">
-
-## Strategy: Deal with it
-
-* Even after careful optimization, during a gas price war it may still be expensive to use your contract
-* To cope, make sure each interaction provides as much value as possible
-* If you provide enough value to your users, they will be able to justify the gas fees and they will pay
-
-</script></section>
 
 
 <section data-markdown><script type="text/template">
@@ -835,6 +851,18 @@ After constant folding and dead-code elimination:
 
 * Special environment that runs functions in your contract and measures gas usage
 * See which parts of your code use most gas
+
+</script></section>
+
+
+
+<section data-markdown><script type="text/template">
+
+## Strategy: Deal with it
+
+* Even after careful optimization, during a gas price war it may still be expensive to use your contract
+* To cope, make sure each interaction provides as much value as possible
+* If you provide enough value to your users, they will be able to justify the gas fees and they will pay
 
 </script></section>
 
